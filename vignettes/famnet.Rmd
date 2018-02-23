@@ -1,0 +1,22 @@
+---
+title: "Introduction to famnet"
+author: 
+    - Luke Johnston
+    - Omar Silverman
+    - Adam Hulman
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to famnet}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+To be filled out...

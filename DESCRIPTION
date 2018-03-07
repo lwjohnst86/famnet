@@ -20,3 +20,8 @@ Suggests: knitr,
 VignetteBuilder: knitr
 URL: https://github.com/lwjohnst86/famnet
 BugReports: https://github.com/lwjohnst86/famnet/issues
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 6.0.1
+Imports:
+    magrittr,
+    dplyr

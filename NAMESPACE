@@ -3,4 +3,5 @@
 export("%>%")
 export(fmn_father_tv)
 export(fmn_mother_tv)
+import(data.table)
 importFrom(magrittr,"%>%")

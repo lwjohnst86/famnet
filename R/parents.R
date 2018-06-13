@@ -20,7 +20,7 @@
 #' fmn_father_tv(fmn_df, "PersonID", "FatherID")
 #'
 fmn_mother_tv <- function(.data, .personid, .motherid) {
-    relation_parent_tv(
+    relation_bio_parent_tv(
         .data,
         .personid = .personid,
         .parentid = .motherid,
@@ -31,7 +31,7 @@ fmn_mother_tv <- function(.data, .personid, .motherid) {
 #' @rdname parents_tv
 #' @export
 fmn_father_tv <- function(.data, .personid, .fatherid) {
-    relation_parent_tv(
+    relation_bio_parent_tv(
         .data,
         .personid = .personid,
         .parentid = .fatherid,
@@ -39,9 +39,12 @@ fmn_father_tv <- function(.data, .personid, .fatherid) {
     )
 }
 
-relation_parent_tv <- function(.data, .personid, .parentid, .parent_type) {
+# Biological parent.
+relation_bio_parent_tv <- function(.data, .personid, .parentid, .parent_type) {
     .data %>%
         dplyr::mutate(RelativeType = dplyr::if_else(!is.na(.data[[.parentid]]), .parent_type, NA_character_)) %>%
         dplyr::rename_at(.parentid, dplyr::funs(paste0("RelativeID"))) %>%
         dplyr::select_at(c(.personid, "RelativeID", "RelativeType"))
 }
+
+

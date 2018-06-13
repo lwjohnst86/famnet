@@ -1,6 +1,5 @@
 
 # Load in test data 1, along with expected output
-devtools::load_data()
 testdata1 <- fmn_df
 testdata1_mother <-
     read.csv("testdata1-expected-mother.csv",
@@ -12,3 +11,4 @@ testdata1_father <-
 # Load in test data 2
 # TODO: Add expected output data files
 testdata2 <- read.csv("testdata2.csv", stringsAsFactors = FALSE)
+

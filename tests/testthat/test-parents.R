@@ -1,4 +1,4 @@
-context("test-parents.R")
+context("Parents")
 
 test_that("Mothers are mothers", {
     expect_equal(fmn_mother_tv(testdata1, "PersonID", "MotherID"),

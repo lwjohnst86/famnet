@@ -1,12 +1,19 @@
 context("Siblings")
 
-test_that("Full siblings are determined", {
+test_that("(unspecified) siblings are determined (tidyverse and data.table)", {
     expected <- read.csv(
-        "testdata1-expected-full-siblings.csv",
+        "testdata1-expected-siblings.csv",
         stringsAsFactors = FALSE,
         na.strings = ""
     )[1:3]
+    actual <- fmn_siblings_tv(fmn_df, "PersonID", .motherid = "MotherID", .fatherid = "FatherID") %>%
+        dplyr::select(PersonID, RelativeID, RelativeType) %>%
+        dplyr::arrange(PersonID, RelativeID)
+    expect_equal(actual, expected)
+
     expected <- data.table::data.table(expected)
-    actual <- na.omit(fmn_full_siblings_tv(fmn_df, "PersonID", .motherid = "MotherID", .fatherid = "FatherID"))
+    actual <- fmn_siblings_dt(fmn_df, "PersonID", .motherid = "MotherID", .fatherid = "FatherID") %>%
+        dplyr::select(PersonID, RelativeID, RelativeType) %>%
+        dplyr::arrange(PersonID, RelativeID)
     expect_equal(actual, expected)
 })

@@ -54,17 +54,47 @@ fmn_sibling_same_parent_tv <- function(.data, .personid, .parentid, .relation = 
 #         select(PersonID, RelativeID, RelativeType, everything())
 # }
 #
+
+
+#' Title
+#'
+#' @param .data
+#' @param .personid
+#' @param .motherid
+#' @param .fatherid
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'
+#' fmn_siblings_dt(fmn_df, "PersonID", "MotherID", "FatherID")
 fmn_siblings_dt <- function(.data, .personid, .motherid, .fatherid) {
     .data <- data.table(.data)
-    # same_mother <- merge(
+    original_data <- .data[, c(.personid, .motherid), with = FALSE]
+    mother_data <- .data[, c(.personid, .motherid), with = FALSE]
+    setnames(mother_data, .personid, "RelativeID")
+    same_mother <-
+        original_data[mother_data,
+                      on = .motherid,
+                      allow.cartesian = TRUE,
+                      nomatch = NA]
+    same_mother <- same_mother[!is.na(get(.motherid)), ]
+    set(same_mother, j = "RelativeType", value = "sibling")
+    print(same_mother)
+
+    #     merge(
     #     .data[, c(.personid, .motherid), with = FALSE],
-    #     setnames(.data[, c(.personid, .motherid), with = FALSE], .personid, "RelativeID"),
+    #     .data[, c(.personid, .motherid), with = FALSE][, c(RelativeID = .personid), with = FALSE],
     #     by = .motherid
     # )
-    #
+
     # same_mother
-    .data[, data.table::CJ(PersonID = .data[[.personid]], RelativeID = .data[[.personid]])[PersonID < RelativeID],
-          by = c(.motherid, .fatherid), with = FALSE]
+    # .data[!is.na(.data[[.fatherid]]) |
+    #           !is.na(.data[[.motherid]]),
+    #       data.table::CJ(PersonID = .data[[.personid]], RelativeID = .data[[.personid]])[PersonID != RelativeID],
+    #       by = c(.motherid, .fatherid)]
+
     # [
     #           is.na(MotherID) | is.na(FatherID)
     #       ]

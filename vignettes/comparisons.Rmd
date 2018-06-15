@@ -1,0 +1,21 @@
+---
+title: "Vignette Title"
+author: "Vignette Author"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+library(profvis)
+library(microbenchmark)
+library(random)
+
+sample(1:1e8, replace = FALSE)
+```
+
+# Parents
+

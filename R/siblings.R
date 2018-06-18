@@ -71,7 +71,8 @@ fmn_sibling_same_parent_tv <- function(.data, .personid, .parentid, .relation = 
     full_join(.data %>%
                   select(.personid, .parentid),
               .data %>%
-                  select("RelativeID" = .personid, .parentid)) %>%
+                  select("RelativeID" = .personid, .parentid),
+              by = .parentid) %>%
         filter_at(.parentid, all_vars(!is.na(.))) %>%
         filter(!!rlang::sym("RelativeID") != !!rlang::sym(.personid)) %>%
         mutate(RelativeType = paste0("sibling, same ", .relation)) %>%

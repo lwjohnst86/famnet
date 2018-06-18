@@ -3,6 +3,7 @@
 export("%>%")
 export(fmn_father_tv)
 export(fmn_mother_tv)
+export(fmn_siblings)
 import(data.table)
 importFrom(dplyr,all_vars)
 importFrom(dplyr,everything)

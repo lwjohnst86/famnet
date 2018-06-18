@@ -9,7 +9,7 @@ Authors@R: c(
     )
 Description: Calculates relations between a family network, based on an individual ID,
     mother ID, and father ID.
-Depends: R (>= 3.4.2)
+Depends: R (>= 3.5)
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -28,4 +28,5 @@ Imports:
     magrittr,
     dplyr,
     data.table,
-    rlang
+    rlang,
+    utils

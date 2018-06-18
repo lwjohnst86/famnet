@@ -45,7 +45,8 @@ fmn_siblings_tv <- function(.data, .personid, .motherid, .fatherid) {
         same_father %>%
             mutate(RelativeType = "sibling") %>%
             select(-.fatherid)
-    )
+    ) %>%
+        dplyr::as_tibble()
 }
 
 fmn_sibling_same_father_tv <- function(.data, .personid, .fatherid) {
@@ -76,7 +77,8 @@ fmn_sibling_same_parent_tv <- function(.data, .personid, .parentid, .relation = 
         filter_at(.parentid, all_vars(!is.na(.))) %>%
         filter(!!rlang::sym("RelativeID") != !!rlang::sym(.personid)) %>%
         mutate(RelativeType = paste0("sibling, same ", .relation)) %>%
-        select("PersonID", "RelativeID", "RelativeType", everything())
+        select("PersonID", "RelativeID", "RelativeType", everything()) %>%
+        dplyr::as_tibble()
 }
 
 #' @describeIn fmn_siblings Function to determine sibling relationships using

@@ -9,11 +9,11 @@ test_that("(unspecified) siblings are determined (tidyverse and data.table)", {
     actual <- fmn_siblings_tv(fmn_df, "PersonID", .motherid = "MotherID", .fatherid = "FatherID") %>%
         dplyr::select(PersonID, RelativeID, RelativeType) %>%
         dplyr::arrange(PersonID, RelativeID)
-    expect_equal(actual, expected)
+    expect_equivalent(actual, expected)
 
     expected <- data.table::data.table(expected)
     actual <- fmn_siblings_dt(fmn_df, "PersonID", .motherid = "MotherID", .fatherid = "FatherID") %>%
         dplyr::select(PersonID, RelativeID, RelativeType) %>%
         dplyr::arrange(PersonID, RelativeID)
-    expect_equal(actual, expected)
+    expect_equivalent(actual, expected)
 })

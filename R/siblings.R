@@ -1,16 +1,51 @@
 
+#' Determine who are siblings using only ID, mother ID, and father ID
+#'
+#' This function is best used with data on a very large population, that has
+#' information on an individual as well as that person's parent's IDs. Common
+#' datasets with this information would be population level register databases,
+#' such as found in Denmark or Sweden.
+#'
+#' @param .data Data that contains columns of persons IDs, for the individual,
+#'   mother, and father.
+#' @param .personid Column with main person's ID.
+#' @param .motherid Column with person's mother's ID.
+#' @param .fatherid Column with person's father's ID.
+#'
+#' @return A dataset with at least:
+#' * `PersonID`: An individual's ID
+#' * `RelativeID`: An ID of one of the individual's relative or family member
+#' * `RelativeType`: The type of relationship between the person and the relative
+#'
+#' @export
+#'
+#' @examples
+#'
+#' # Uses tidyverse under the hood. There is a data.table version available.
+#' fmn_siblings(fmn_df, "PersonID", "MotherID", "FatherID")
+fmn_siblings <- function(.data, .personid, .motherid, .fatherid) {
+    fmn_siblings_tv(
+        .data = .data,
+        .personid = .personid,
+        .motherid = .motherid,
+        .fatherid = .fatherid
+    )
+}
+
+#' @describeIn fmn_siblings Function to determine sibling relationships, using
+#'   "[tidyverse](https://www.tidyverse.org/packages/)" functions (e.g.
+#'   [dplyr](https://dplyr.tidyverse.org/)).
 fmn_siblings_tv <- function(.data, .personid, .motherid, .fatherid) {
     same_mother <- fmn_sibling_same_mother_tv(.data, .personid, .motherid)
     same_father <- fmn_sibling_same_father_tv(.data, .personid, .fatherid)
-    union(
+    dplyr::union(
         same_mother %>%
             mutate(RelativeType = "sibling") %>%
-            select(.personid, RelativeID, RelativeType),
+            select(-.motherid),
         same_father %>%
             mutate(RelativeType = "sibling") %>%
-            select(.personid, RelativeID, RelativeType)
+            select(-.fatherid)
     )
-
 }
 
 fmn_sibling_same_father_tv <- function(.data, .personid, .fatherid) {
@@ -43,59 +78,47 @@ fmn_sibling_same_parent_tv <- function(.data, .personid, .parentid, .relation = 
         select("PersonID", "RelativeID", "RelativeType", everything())
 }
 
-# fmn_full_siblings_tv <- function(.data, .personid, .motherid, .fatherid) {
-#     full_join(
-#         .data,
-#         .data %>%
-#             select("RelativeID" = .personid, .motherid, .fatherid)
-#     ) %>%
-#         filter(complete.cases(.), RelativeID != PersonID) %>%
-#         mutate(RelativeType = "Sibling") %>%
-#         select(PersonID, RelativeID, RelativeType, everything())
-# }
-#
-
-
-#' Title
-#'
-#' @param .data
-#' @param .personid
-#' @param .motherid
-#' @param .fatherid
-#'
-#' @return
-#' @export
-#'
-#' @examples
-#'
-#' fmn_siblings_dt(fmn_df, "PersonID", "MotherID", "FatherID")
+#' @describeIn fmn_siblings Function to determine sibling relationships using
+#'   [data.table](https://github.com/Rdatatable/data.table/wiki) functions.
 fmn_siblings_dt <- function(.data, .personid, .motherid, .fatherid) {
-    .data <- data.table(.data)
-    original_data <- .data[, c(.personid, .motherid), with = FALSE]
-    mother_data <- .data[, c(.personid, .motherid), with = FALSE]
-    setnames(mother_data, .personid, "RelativeID")
-    same_mother <-
-        original_data[mother_data,
-                      on = .motherid,
-                      allow.cartesian = TRUE,
-                      nomatch = NA]
-    same_mother <- same_mother[!is.na(get(.motherid)), ]
+    same_mother <- fmn_sibling_same_mother_dt(.data, .personid, .motherid)[, !.motherid, with = FALSE]
     set(same_mother, j = "RelativeType", value = "sibling")
-    print(same_mother)
+    same_father <- fmn_sibling_same_father_dt(.data, .personid, .fatherid)[, !.fatherid, with = FALSE]
+    set(same_father, j = "RelativeType", value = "sibling")
+    funion(same_mother, same_father)
+}
 
-    #     merge(
-    #     .data[, c(.personid, .motherid), with = FALSE],
-    #     .data[, c(.personid, .motherid), with = FALSE][, c(RelativeID = .personid), with = FALSE],
-    #     by = .motherid
-    # )
+fmn_sibling_same_mother_dt <- function(.data, .personid, .motherid) {
+        fmn_sibling_same_parent_dt(
+            .data = .data,
+            .personid = .personid,
+            .parentid = .motherid,
+            .relation = "mother"
+        )
+}
 
-    # same_mother
-    # .data[!is.na(.data[[.fatherid]]) |
-    #           !is.na(.data[[.motherid]]),
-    #       data.table::CJ(PersonID = .data[[.personid]], RelativeID = .data[[.personid]])[PersonID != RelativeID],
-    #       by = c(.motherid, .fatherid)]
+fmn_sibling_same_father_dt <- function(.data, .personid, .fatherid) {
+        fmn_sibling_same_parent_dt(
+            .data = .data,
+            .personid = .personid,
+            .parentid = .fatherid,
+            .relation = "father"
+        )
+}
 
-    # [
-    #           is.na(MotherID) | is.na(FatherID)
-    #       ]
+fmn_sibling_same_parent_dt <- function(.data, .personid, .parentid, .relation = c("mother", "father")) {
+    .relation <- match.arg(.relation)
+    .data <- data.table(.data)
+    parent_data <- .data[, c(.personid, .parentid), with = FALSE]
+    setnames(parent_data, .personid, "RelativeID")
+    same_parent <-
+        .data[, c(.personid, .parentid), with = FALSE][
+            parent_data,
+            on = .parentid,
+            allow.cartesian = TRUE,
+            nomatch = NA][
+                !is.na(get(.parentid)),][
+                    get(.personid) != get("RelativeID"), ]
+    set(same_parent, j = "RelativeType", value = paste0("sibling, same ", .relation))
+    return(same_parent)
 }
